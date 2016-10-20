@@ -1,0 +1,6 @@
+version: '2'
+services:
+  logstash:
+    build:
+      context: .
+    command: logstash --debug -e 'input { cloudhub {} } output { stdout {} }'
