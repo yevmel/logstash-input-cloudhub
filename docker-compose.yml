@@ -3,4 +3,14 @@ services:
   logstash:
     build:
       context: .
-    command: logstash --debug -e 'input { cloudhub {} } output { stdout {} }'
+    command: > 
+      logstash --debug -e '
+        input { 
+          cloudhub { 
+            domain => "${CLOUDHUB_DOMAIN}" 
+            username => "${CLOUDHUB_USERNAME}" 
+            password => "${CLOUDHUB_PASSWORD}"
+            interval => 10 # optional, default 300
+            startTime => 0 # optional, default 0
+          } 
+        } output { stdout {} }'
