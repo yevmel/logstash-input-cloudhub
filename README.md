@@ -4,18 +4,18 @@ plugin for logstash, which pulls logs from a application deployed to [Cloudhub](
 # try it out
 `Dockerfile` and `docker-compose.yml` contains everything you need to try it out, assumed you already have docker-compose installed and a Docker instance running.
 
-1. build the plugin from source.
+## build the plugin from source.
 ```
 # gem can be used instead of jgem
 jgem build logstash-input-cloudhub.gemspec
 ```
 
-2. setup a container with logstash 2.4 and install the plugin
+## setup a container with logstash 2.4 and install the plugin
 ```
 docker-compose build
 ```
 
-3. run the container with logstash and the plugin.
+## run the container with logstash and the plugin.
 ```
 export CLOUDHUB_DOMAIN=<application>
 export CLOUDHUB_USERNAME=<username>
