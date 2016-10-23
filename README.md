@@ -23,5 +23,23 @@ export CLOUDHUB_PASSWORD=<password>
 docker-compose up
 ```
 
+# configuration
+
+```
+input { 
+    cloudhub { 
+        domain => "my-application" 
+        username => "Bob" 
+        password => "secret"
+        interval => 300
+        startTime => 0
+    } 
+} 
+
+output { 
+    stdout {} 
+}
+```
+
 # further information
 [Cloudhub Enhanced Logging API 1.0.0](https://anypoint.mulesoft.com/apiplatform/anypoint-platform/#/portals/organizations/68ef9520-24e9-4cf2-b2f5-620025690913/apis/34348/versions/35742/pages/49591)
