@@ -16,6 +16,7 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   config :username, :validate => :string
   config :password, :validate => :string
   config :interval, :validate => :number, :default => 300
+  config :environment_id, :validate => :string, :default => ""
   config :startTime, :validate => :number, :default => 0
 
   default :codec, "plain"
@@ -41,7 +42,7 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
 
     while !stop?
       loop do
-        logs = api.logs(@startTime)
+        logs = api.logs(@startTime, @environment_id)
         break if logs.empty?
 
         for log in logs do

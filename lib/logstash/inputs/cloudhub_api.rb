@@ -26,7 +26,7 @@ class CloudhubAPI
     return JSON.parse(response.body)['access_token']
   end
 
-  def logs startTime
+  def logs startTime, environment_id=nil
     uri = URI.parse("https://anypoint.mulesoft.com/cloudhub/api/v2/applications/#{@domain}/logs")
 
     client = Net::HTTP.new(uri.host, uri.port)
@@ -41,6 +41,10 @@ class CloudhubAPI
       :limit => 100,
       :descending => false
     })
+
+    if environment_id.to_s.strip.length > 0
+      request.add_field("X-ANYPNT-ENV-ID", environment_id)
+    end
 
     response = client.request(request)
     return JSON.parse(response.body)
