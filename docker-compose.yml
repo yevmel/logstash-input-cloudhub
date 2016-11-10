@@ -2,6 +2,7 @@ version: '2'
 services:
   squid:
     image: sameersbn/squid
+    container_name: squid
     volumes:
     - ./squid.conf:/etc/squid3/squid.conf
     - ./squid.passwords:/etc/squid3/passwords
@@ -19,5 +20,9 @@ services:
             password => "${CLOUDHUB_PASSWORD}"
             interval => 10 # optional, default 300
             startTime => 0 # optional, default 0
+            proxy_host => "squid" # optional
+            proxy_port => 3128 # optional
+            proxy_username => "user" # optional
+            proxy_password => "secret" # optional
           } 
         } output { stdout {} }'
