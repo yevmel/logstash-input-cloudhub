@@ -1,5 +1,11 @@
 version: '2'
 services:
+  squid:
+    image: sameersbn/squid
+    volumes:
+    - ./squid.conf:/etc/squid3/squid.conf
+    - ./squid.passwords:/etc/squid3/passwords
+
   logstash:
     build:
       context: .
