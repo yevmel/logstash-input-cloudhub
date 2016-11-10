@@ -3,6 +3,7 @@ services:
   logstash:
     build:
       context: .
+      dockerfile: Dockerfile_logstash
     command: > 
       logstash --debug -e '
         input { 
