@@ -8,10 +8,10 @@ class CloudhubAPI
     @domain = domain
     @username = username
     @password = password
-    @proxy_host=nil
-    @proxy_port=nil
-    @proxy_username=nil
-    @proxy_password=nil
+    @proxy_host=proxy_host
+    @proxy_port=proxy_port
+    @proxy_username=proxy_username
+    @proxy_password=proxy_password
   end
 
   def token
