@@ -33,6 +33,10 @@ input {
         password => "secret"
         interval => 300
         startTime => 0
+        proxy_host => "squid"
+        proxy_port => 3128
+        proxy_username => "user"
+        proxy_password => "secret"
     } 
 } 
 
