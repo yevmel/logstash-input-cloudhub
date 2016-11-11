@@ -19,6 +19,11 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   config :environment_id, :validate => :string, :default => ""
   config :startTime, :validate => :number, :default => 0
 
+  config :proxy_host, :validate => :string
+  config :proxy_port, :validate => :number
+  config :proxy_username, :validate => :string
+  config :proxy_password, :validate => :string
+
   default :codec, "plain"
 
   public
@@ -38,7 +43,7 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   end
 
   def run(queue)
-    api = CloudhubAPI.new @domain, @username, @password
+    api = CloudhubAPI.new @domain, @username, @password, @proxy_host, @proxy_port, @proxy_username, @proxy_password
 
     while !stop?
       loop do

@@ -4,16 +4,20 @@ require "net/http"
 require "json"
 
 class CloudhubAPI
-  def initialize domain, username, password
+  def initialize domain, username, password, proxy_host=nil, proxy_port=nil, proxy_username=nil, proxy_password=nil
     @domain = domain
     @username = username
     @password = password
+    @proxy_host=proxy_host
+    @proxy_port=proxy_port
+    @proxy_username=proxy_username
+    @proxy_password=proxy_password
   end
 
   def token
     uri = URI.parse('https://anypoint.mulesoft.com/accounts/login')
 
-    client = Net::HTTP.new(uri.host, uri.port)
+    client = Net::HTTP.new(uri.host, uri.port, @proxy_host, @proxy_port, @proxy_username, @proxy_password)
     client.use_ssl = true
 
     request = Net::HTTP::Post.new(uri.request_uri)
@@ -29,7 +33,7 @@ class CloudhubAPI
   def logs startTime, environment_id=nil
     uri = URI.parse("https://anypoint.mulesoft.com/cloudhub/api/v2/applications/#{@domain}/logs")
 
-    client = Net::HTTP.new(uri.host, uri.port)
+    client = Net::HTTP.new(uri.host, uri.port, @proxy_host, @proxy_port, @proxy_username, @proxy_password)
     client.use_ssl = true
 
     request = Net::HTTP::Post.new(uri.request_uri)
