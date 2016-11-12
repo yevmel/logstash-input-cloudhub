@@ -1,11 +1,11 @@
 # encoding: utf-8
 
 require_relative 'cloudhub_api'
+require_relative 'sincedb'
 
 require "logstash/inputs/base"
 require "logstash/namespace"
 require "stud/interval"
-require "digest/md5"
 require "fileutils"
 require "socket"
 
@@ -29,17 +29,12 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   public
   def register
     @host = Socket.gethostname
-    FileUtils::mkdir_p sincedb_folder
+    @sincedb = SinceDB.new
 
-    sincedb_path = construct_sincedb_path(@domain)
-    if File.exists? sincedb_path
-      File.open(sincedb_path, "r") { |file| 
-          sincedb_startFrom = file.read.to_i
-          if sincedb_startFrom > @startTime
-            @startTime = sincedb_startFrom
-          end 
-        }
-      end
+    startTimeSinceDB = @sincedb.read @domain
+    if startTimeSinceDB > @startTime
+      @startTime = startTimeSinceDB
+    end
   end
 
   def run(queue)
@@ -60,21 +55,11 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
         @startTime = logs[-1]['event']['timestamp'] + 1
       end
 
-      File.open(construct_sincedb_path(@domain), "w") { |file| file.write(@startTime) }
-
+      @sincedb.write @domain, @startTime
       Stud.stoppable_sleep (@interval) { stop? }
     end
   end
 
   def stop
-  end
-
-  private 
-  def sincedb_folder
-    File.join(Dir.home, ".logstash-input-cloudhub")
-  end
-
-  def construct_sincedb_path domain
-    File.join(sincedb_folder, "sincedb_" + Digest::MD5.hexdigest(domain))
   end
 end
