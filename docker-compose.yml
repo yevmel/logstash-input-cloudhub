@@ -24,5 +24,7 @@ services:
             proxy_port => 3128 # optional
             proxy_username => "user" # optional
             proxy_password => "secret" # optional
+
+            add_field => { "name" => "value" } # test usage of decorate()
           }
         } output { stdout {} }'

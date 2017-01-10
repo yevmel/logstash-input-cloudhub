@@ -46,10 +46,13 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
         break if logs.empty?
 
         for log in logs do
-          queue << LogStash::Event.new(
+          event = LogStash::Event.new(
             'message' => JSON.generate(log),
             'host' => @host
           )
+
+          decorate(event)
+          queue << event
         end
 
         @startTime = logs[-1]['event']['timestamp'] + 1
