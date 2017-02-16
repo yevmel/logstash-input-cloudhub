@@ -26,19 +26,19 @@ docker-compose up
 # configuration
 
 ```
-input { 
-    cloudhub { 
-        domain => "my-application" 
-        username => "Bob" 
-        password => "secret"
-        interval => 300
-        startTime => 0
-        proxy_host => "squid"
-        proxy_port => 3128
-        proxy_username => "user"
-        proxy_password => "secret"
-    } 
-} 
+input {
+	cloudhub { 
+		type => "CloudHub"
+        organization_id => "uuid of your company" 
+        username => "anypoint-user" 
+        password => "anypoint-password"
+        interval => 30
+        proxy_host => "proxy-host"
+        proxy_port => 8080
+        proxy_username => "proxy-user"
+        proxy_password => "proxy-password"
+	}
+}
 
 output { 
     stdout {} 
