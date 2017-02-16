@@ -1,49 +1,68 @@
-# logstash-input-cloudhub
-plugin for logstash, which pulls logs from a application deployed to [Cloudhub](anypoint.mulesoft.com/cloudhub).
+# encoding: utf-8
 
-# try it out
-`Dockerfile` and `docker-compose.yml` contains everything you need to try it out, assumed you already have docker-compose installed and a Docker instance running.
+require_relative 'cloudhub_api'
+require_relative 'sincedb'
 
-## build the plugin from source.
-```
-# gem can be used instead of jgem
-jgem build logstash-input-cloudhub.gemspec
-```
+require "logstash/inputs/base"
+require "logstash/namespace"
+require "stud/interval"
+require "fileutils"
+require "socket"
 
-## setup a container with logstash 2.4 and install the plugin
-```
-docker-compose build
-```
+class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
+  config_name "cloudhub"
 
-## run the container with logstash and the plugin.
-```
-export CLOUDHUB_DOMAIN=<application>
-export CLOUDHUB_USERNAME=<username>
-export CLOUDHUB_PASSWORD=<password> 
-docker-compose up
-```
+  config :domain, :validate => :string
+  config :username, :validate => :string
+  config :password, :validate => :string
+  config :interval, :validate => :number, :default => 300
+  config :environment_id, :validate => :string, :default => ""
+  config :startTime, :validate => :number, :default => 0
 
-# configuration
+  config :proxy_host, :validate => :string
+  config :proxy_port, :validate => :number
+  config :proxy_username, :validate => :string
+  config :proxy_password, :validate => :string
 
-```
-input { 
-    cloudhub { 
-        domain => "my-application" 
-        username => "Bob" 
-        password => "secret"
-        interval => 300
-        startTime => 0
-        proxy_host => "squid"
-        proxy_port => 3128
-        proxy_username => "user"
-        proxy_password => "secret"
-    } 
-} 
+  default :codec, "plain"
 
-output { 
-    stdout {} 
-}
-```
+  public
+  def register
+    @host = Socket.gethostname
+    @sincedb = SinceDB.new
 
-# further information
-[Cloudhub Enhanced Logging API 1.0.0](https://anypoint.mulesoft.com/apiplatform/anypoint-platform/#/portals/organizations/68ef9520-24e9-4cf2-b2f5-620025690913/apis/34348/versions/35742/pages/49591)
+    startTimeSinceDB = @sincedb.read @domain
+    if startTimeSinceDB > @startTime
+      @startTime = startTimeSinceDB
+    end
+  end
+
+  def run(queue)
+    api = CloudhubAPI.new @domain, @username, @password, @proxy_host, @proxy_port, @proxy_username, @proxy_password
+
+    while !stop?
+      loop do
+        logs = api.logs(@startTime, @environment_id)
+        break if logs.empty?
+
+        for log in logs do
+          event = LogStash::Event.new(
+            'message' => JSON.generate(log),
+            'host' => @host
+          )
+
+          decorate(event)
+          queue << event
+        end
+
+        @startTime = logs[-1]['event']['timestamp'] + 1
+      end
+
+      @sincedb.write @domain, @startTime
+      Stud.stoppable_sleep (@interval) { stop? }
+    end
+  end
+
+  def stop
+  end
+end
