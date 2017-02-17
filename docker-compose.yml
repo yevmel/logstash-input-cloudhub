@@ -15,11 +15,10 @@ services:
       logstash --debug -e '
         input {
           cloudhub {
-            domain => "${CLOUDHUB_DOMAIN}"
+            organization_id => "${CLOUDHUB_ORGA}"
             username => "${CLOUDHUB_USERNAME}"
             password => "${CLOUDHUB_PASSWORD}"
             interval => 10 # optional, default 300
-            startTime => 0 # optional, default 0
             proxy_host => "squid" # optional
             proxy_port => 3128 # optional
             proxy_username => "user" # optional

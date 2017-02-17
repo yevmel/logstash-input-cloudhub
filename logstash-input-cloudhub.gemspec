@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-input-cloudhub'
-  s.version       = '0.1.0'
+  s.version       = '0.2.0'
   s.licenses      = ['Apache License (2.0)']
   s.summary       = ''
   s.description   = ''
