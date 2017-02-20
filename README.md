@@ -28,10 +28,10 @@ docker-compose up
 ```
 input {
 	cloudhub { 
-		type => "CloudHub"
-        organization_id => "uuid of your company" 
+	type => "CloudHub"
         username => "anypoint-user" 
         password => "anypoint-password"
+	environments => "ints|prod"
         interval => 30
         proxy_host => "proxy-host"
         proxy_port => 8080

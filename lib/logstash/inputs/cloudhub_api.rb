@@ -4,16 +4,29 @@ require "net/http"
 require "json"
 
 class CloudhubAPI
-  def initialize logger, organization_id, username, password, events_per_call, proxy_host=nil, proxy_port=nil, proxy_username=nil, proxy_password=nil
+  def initialize logger, username, password, environments, events_per_call, proxy_host=nil, proxy_port=nil, proxy_username=nil, proxy_password=nil
     @logger = logger
-    @organization_id = organization_id
     @username = username
     @password = password
+    @environments = environments
     @events_per_call = events_per_call
     @proxy_host=proxy_host
     @proxy_port=proxy_port
     @proxy_username=proxy_username
     @proxy_password=proxy_password
+    
+    uri = URI.parse("https://anypoint.mulesoft.com/accounts/api/me")
+    
+    client = Net::HTTP.new(uri.host, uri.port, @proxy_host, @proxy_port, @proxy_username, @proxy_password)
+    client.use_ssl = true
+    
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request.add_field("Authorization", "Bearer #{token}")
+    response = client.request(request)
+    
+    body = JSON.parse(response.body)
+    @organization_id = body['user']['organization']['id']
+    @logger.info('Organisation ID: ' + @organization_id)
   end
 
   def token
@@ -45,8 +58,20 @@ class CloudhubAPI
     response = client.request(request)
     
     body = JSON.parse(response.body)
-    
-    return body['environments']
+    if @environments.to_s.strip.length == 0
+      regexp = nil
+    else
+      regexp = Regexp.new(@environments)
+    end
+    environments = Array.new
+    body['environments'].each do |environment|
+      id = environment['id']
+      name = environment['name']
+      if (regexp == nil || regexp.match(name))
+        environments << { 'id' => id, 'name' => name }
+      end
+    end
+    return environments 
   end
   
   # Returns an array of hashes, for us is interesting:
