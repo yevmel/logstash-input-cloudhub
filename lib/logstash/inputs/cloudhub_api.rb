@@ -14,16 +14,16 @@ class CloudhubAPI
     @proxy_port=proxy_port
     @proxy_username=proxy_username
     @proxy_password=proxy_password
-    
+
     uri = URI.parse("https://anypoint.mulesoft.com/accounts/api/me")
-    
+
     client = Net::HTTP.new(uri.host, uri.port, @proxy_host, @proxy_port, @proxy_username, @proxy_password)
     client.use_ssl = true
-    
+
     request = Net::HTTP::Get.new(uri.request_uri)
     request.add_field("Authorization", "Bearer #{token}")
     response = client.request(request)
-    
+
     body = JSON.parse(response.body)
     @organization_id = body['user']['organization']['id']
     @logger.info('Organisation ID: ' + @organization_id)
@@ -36,9 +36,9 @@ class CloudhubAPI
     client.use_ssl = true
 
     request = Net::HTTP::Post.new(uri.request_uri)
-    request.body = URI.encode_www_form({ 
-      "username" => @username, 
-      "password" => @password 
+    request.body = URI.encode_www_form({
+      "username" => @username,
+      "password" => @password
     })
 
     response = client.request(request)
@@ -49,14 +49,14 @@ class CloudhubAPI
   # {"id"=>"...", "name"=>"prod", "organizationId"=>"...", "isProduction"=>true}
   def environments cached_token=token
     uri = URI.parse("https://anypoint.mulesoft.com/accounts/api/organizations/#{@organization_id}")
-    
+
     client = Net::HTTP.new(uri.host, uri.port, @proxy_host, @proxy_port, @proxy_username, @proxy_password)
     client.use_ssl = true
-    
+
     request = Net::HTTP::Get.new(uri.request_uri)
     request.add_field("Authorization", "Bearer #{cached_token}")
     response = client.request(request)
-    
+
     body = JSON.parse(response.body)
     if @environments.to_s.strip.length == 0
       regexp = nil
@@ -71,9 +71,9 @@ class CloudhubAPI
         environments << { 'id' => id, 'name' => name }
       end
     end
-    return environments 
+    return environments
   end
-  
+
   # Returns an array of hashes, for us is interesting:
   # { "domain"=>"my_name", "fullDomain"=>"my_name.eu.cloudhub.io", ... }
   def apps environment, cached_token=token
@@ -84,12 +84,12 @@ class CloudhubAPI
     request = Net::HTTP::Get.new(uri.request_uri)
     request.add_field("Authorization", "Bearer #{cached_token}")
     request.add_field("X-ANYPNT-ENV-ID", environment['id'])
-    
+
     response = client.request(request)
-    
+
     return JSON.parse(response.body)
   end
-  
+
   def logs startTime, environment_id, application, cached_token=token
     uri = URI.parse("https://anypoint.mulesoft.com/cloudhub/api/v2/applications/#{application}/logs")
 
@@ -102,7 +102,7 @@ class CloudhubAPI
     request.body = JSON.generate({
       :startTime => startTime,
       :endTime => java.lang.Long::MAX_VALUE,
-      :limit => @events_per_call, 
+      :limit => @events_per_call,
       :descending => false
     })
     request.add_field("X-ANYPNT-ENV-ID", environment_id)
