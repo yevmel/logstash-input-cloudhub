@@ -15,14 +15,15 @@ require "socket"
 class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   config_name "cloudhub"
 
-  # Organization ID of the Anypoint company account
-  config :organization_id, :validate => :string
-  
   # Anypoint user name
   config :username, :validate => :string
   
   # Anypoint password
   config :password, :validate => :string
+
+  # Regular expression to match against environments which shall be handled.
+  # Leave empty (default) to match against all environments  
+  config :environments, :validate => :string, :default => nil
   
   # Interval (in seconds) between two log fetches.
   # (End of previous fetch to start of next fetch)
@@ -54,7 +55,7 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   end
 
   def run(queue)
-    api = CloudhubAPI.new @logger, @organization_id, @username, @password, @events_per_call, @proxy_host, @proxy_port, @proxy_username, @proxy_password
+    api = CloudhubAPI.new @logger, @username, @password, @environments, @events_per_call, @proxy_host, @proxy_port, @proxy_username, @proxy_password
 
     while !stop?
         
