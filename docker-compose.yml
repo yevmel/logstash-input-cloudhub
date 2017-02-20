@@ -15,7 +15,6 @@ services:
       logstash --debug -e '
         input {
           cloudhub {
-            organization_id => "${CLOUDHUB_ORGA}"
             username => "${CLOUDHUB_USERNAME}"
             password => "${CLOUDHUB_PASSWORD}"
             interval => 10 # optional, default 300
