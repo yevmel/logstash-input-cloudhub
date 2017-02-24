@@ -17,32 +17,32 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
 
   # Anypoint user name
   config :username, :validate => :string
-  
+
   # Anypoint password
   config :password, :validate => :string
 
   # Regular expression to match against environments which shall be handled.
-  # Leave empty (default) to match against all environments  
-  config :environments, :validate => :string, :default => nil
-  
+  # Leave empty (default) to match against all environments
+  config :environments, :validate => :string, :default => ".*"
+
   # Interval (in seconds) between two log fetches.
   # (End of previous fetch to start of next fetch)
   # Default value: 300
   config :interval, :validate => :number, :default => 300
-  
+
   # How many events should be fetched in one REST call?
   # Default: 100
   config :events_per_call, :validate => :number, :default => 100
 
   # Host name of web proxy
   config :proxy_host, :validate => :string
-  
+
   # Port of web proxy
   config :proxy_port, :validate => :number
-  
+
   # User name of web proxy
   config :proxy_username, :validate => :string
-  
+
   # Password of web proxy
   config :proxy_password, :validate => :string
 
@@ -58,10 +58,10 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
     api = CloudhubAPI.new @logger, @username, @password, @environments, @events_per_call, @proxy_host, @proxy_port, @proxy_username, @proxy_password
 
     while !stop?
-        
+
       # get the token once per main loop (more efficient than fetching it for each API call)
       token = api.token()
-        
+
       environments = api.environments(token)
       environments.each do |environment|
         applications = api.apps(environment, token)
@@ -69,13 +69,13 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
           application_name = application['domain']
           begin
             @logger.info("Fetching logs for " + application_name)
-            
+
             first_start_time = @sincedb.read application_name
             start_time = first_start_time
             while !stop?
               logs = api.logs(start_time, environment['id'], application_name, token)
               break if logs.empty?
-              
+
               start_time = logs[-1]['event']['timestamp'] + 1
               push_logs logs, environment['name'], application_name, queue
             end
@@ -120,5 +120,5 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   def stop
     @logger.info("Stopping CloudHub plugin")
   end
-  
+
 end
