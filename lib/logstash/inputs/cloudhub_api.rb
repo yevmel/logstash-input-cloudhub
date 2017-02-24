@@ -59,15 +59,11 @@ class CloudhubAPI
 
     body = JSON.parse(response.body)
     regexp = Regexp.new(@environments)
-    environments = Array.new
-    body['environments'].each do |environment|
-      id = environment['id']
-      name = environment['name']
-      if (regexp.match(name))
-        environments << { 'id' => id, 'name' => name }
-      end
-    end
-    return environments
+    return body['environments'].select { |environment|
+      regexp.match(environment['name'])
+    }.map { |environment|
+      { "id" => environment['id'] }
+    }
   end
 
   # Returns an array of hashes, for us is interesting:
