@@ -58,16 +58,12 @@ class CloudhubAPI
     response = client.request(request)
 
     body = JSON.parse(response.body)
-    if @environments.to_s.strip.length == 0
-      regexp = nil
-    else
-      regexp = Regexp.new(@environments)
-    end
+    regexp = Regexp.new(@environments)
     environments = Array.new
     body['environments'].each do |environment|
       id = environment['id']
       name = environment['name']
-      if (regexp == nil || regexp.match(name))
+      if (regexp.match(name))
         environments << { 'id' => id, 'name' => name }
       end
     end
