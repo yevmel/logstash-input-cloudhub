@@ -62,7 +62,9 @@ class CloudhubAPI
     return body['environments'].select { |environment|
       regexp.match(environment['name'])
     }.map { |environment|
-      { "id" => environment['id'] }
+      { "id" => environment['id'],
+        "name" => environment['name']
+      }
     }
   end
 
