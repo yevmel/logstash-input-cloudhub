@@ -31,7 +31,9 @@ input {
 	type => "CloudHub"
         username => "anypoint-user" 
         password => "anypoint-password"
-	environments => "ints|prod"
+        environments => "ints|prod"
+        sincedb_folder => "/temp/cloudhub_db"
+        sincedb_prefix => "since_"
         interval => 30
         proxy_host => "proxy-host"
         proxy_port => 8080

@@ -34,6 +34,12 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   # Default: 100
   config :events_per_call, :validate => :number, :default => 100
 
+  # Folder for sincedb files, default is <logstash>/data/plugins/cloudhub
+  config :sincedb_folder, :validate => :string, :default => nil
+
+  # File name prefix for sincedb files, default is 'sincedb-'
+  config :sincedb_prefix, :validate => :string, :default => 'sincedb-'
+
   # Host name of web proxy
   config :proxy_host, :validate => :string
 
@@ -51,7 +57,7 @@ class LogStash::Inputs::Cloudhub < LogStash::Inputs::Base
   public
   def register
     @host = Socket.gethostname
-    @sincedb = SinceDB.new
+    @sincedb = SinceDB.new @sincedb_folder, @sincedb_prefix
   end
 
   def run(queue)
